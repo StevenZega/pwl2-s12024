@@ -1,4 +1,3 @@
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -45,22 +44,26 @@
                                 <td>Rp {{ number_format($product->price, 2, ',', '.') }}</td>
                                 <td>{{ $product->stock }}</td>
                                 <td class="text-center">
-                                    <form onsubmit="return confirm('Apakah Anda Yakin ?');" 
+                                    <a href="{{ route('products.show', $product->id) }}" 
+                                       class="btn btn-sm btn-dark">SHOW</a>
+                                    <a href="{{ route('products.edit', $product->id) }}" 
+                                       class="btn btn-sm btn-primary">EDIT</a>
+
+                                    <form id="delete-form-{{ $product->id }}" 
                                           action="{{ route('products.destroy', $product->id) }}" 
-                                          method="POST">
-                                        <a href="{{ route('products.show', $product->id) }}" 
-                                           class="btn btn-sm btn-dark">SHOW</a>
-                                        <a href="{{ route('products.edit', $product->id) }}" 
-                                           class="btn btn-sm btn-primary">EDIT</a>
+                                          method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger">HAPUS</button>
+                                        <button type="button" class="btn btn-sm btn-danger"
+                                                onclick="confirmDelete({{ $product->id }}, '{{ $product->title }}')">
+                                            HAPUS
+                                        </button>
                                     </form>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center">Data Produk Belum Ada</td>
+                                <td colspan="7" class="text-center">Data Produk Belum Ada</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -72,10 +75,12 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+{{-- Bootstrap & SweetAlert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    // message with sweetalert
+    // Notifikasi sukses/gagal
     @if(session('success'))
         Swal.fire({
             icon: "success",
@@ -93,6 +98,24 @@
             timer: 2000
         });
     @endif
+
+    // Konfirmasi hapus pakai SweetAlert
+    function confirmDelete(id, judul) {
+        Swal.fire({
+            title: "Yakin hapus data " + judul + " ?",
+            text: "Data yang dihapus tidak bisa dikembalikan!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Ya, hapus!",
+            cancelButtonText: "Batal"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
 </script>
 
 </body>
